@@ -1,0 +1,30 @@
+# ROS 2 workspace .gitignore
+
+# Build, install, and log directories
+build/
+install/
+log/
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Colcon/ament/rosdep files
+.colcon/
+.colcon_install_layout
+.rosdep/
+.ament/
+ament_cmake_environment_hooks/
+local_setup.*
+
+# VS Code settings
+.vscode/
+
+# Misc
+*.swp
+*.swo
+*.bak
+.DS_Store
+
+# ROS 2 launch/test results
