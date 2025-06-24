@@ -39,3 +39,11 @@ ros2 topic pub /move_cmd std_msgs/String "data: 'stop'"
 ---
 
 Happy botting! If Vero starts plotting world domination, just unplug her.
+
+### Useful commands 
+
+for creating a new package:
+```bash
+cd src
+ros2 pkg create --build-type ament_python <package_name>
+```

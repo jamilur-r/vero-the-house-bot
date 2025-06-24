@@ -1,0 +1,9 @@
+<library path="libvero_hardware">
+  <class name="vero_hardware/VeroHardwareInterface"
+         type="VeroHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware interface for Vero robot.
+    </description>
+  </class>
+</library>
