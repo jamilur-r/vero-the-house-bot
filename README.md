@@ -67,7 +67,7 @@ ros2 launch vero_hardware vero_robot.launch.py
 ### 2. Start Teleop Keyboard Control
 ```bash
 # On your development machine or Pi
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/diff_drive_controller/cmd_vel_unstamped
 ```
 
 ---
