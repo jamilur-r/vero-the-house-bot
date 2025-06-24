@@ -90,16 +90,28 @@ hardware_interface::return_type VeroHardwareInterface::read(const rclcpp::Time &
 hardware_interface::return_type VeroHardwareInterface::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
     static int call_count = 0;
+    static double last_left_cmd = 999.0;  // Initialize to impossible value
+    static double last_right_cmd = 999.0; // Initialize to impossible value
     call_count++;
     
     if (motor_driver_) {
-        // Add comprehensive debug output - only show if commands are non-zero
-        if (std::abs(left_wheel_cmd_) > 0.001 || std::abs(right_wheel_cmd_) > 0.001) {
+        // Check for command timeout first
+        motor_driver_->check_command_timeout();
+        
+        // Only send commands if they changed or if this is the first call
+        bool commands_changed = (std::abs(left_wheel_cmd_ - last_left_cmd) > 1e-6) || 
+                               (std::abs(right_wheel_cmd_ - last_right_cmd) > 1e-6);
+        
+        if (commands_changed || call_count == 1) {
             std::cout << "### HARDWARE INTERFACE WRITE (call #" << call_count << ") ###" << std::endl;
             std::cout << "Command values: left_wheel_cmd_=" << left_wheel_cmd_ << ", right_wheel_cmd_=" << right_wheel_cmd_ << std::endl;
             std::cout << "################################" << std::endl << std::flush;
             
             motor_driver_->set_wheel_velocities(left_wheel_cmd_, right_wheel_cmd_);
+            
+            // Update last command values
+            last_left_cmd = left_wheel_cmd_;
+            last_right_cmd = right_wheel_cmd_;
         }
     } else {
         std::cout << "ERROR: motor_driver_ is null!" << std::endl << std::flush;

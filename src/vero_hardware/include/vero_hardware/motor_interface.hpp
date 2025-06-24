@@ -18,7 +18,7 @@ public:
     ~MotorDriverHAT();
 
     // Initialize the driver (call once, e.g. in configure())
-    bool initialize(uint16_t pwm_freq = 100);
+    bool initialize(uint16_t pwm_freq = 50);
 
     // Set wheel velocities as a percentage (-100 to 100)
     void set_wheel_speeds(int left_percent, int right_percent);
