@@ -32,7 +32,7 @@ i2cdetect -y 1
 
 ### 1. Build the Workspace
 ```bash
-cd /home/xlab/projects/vero_ws
+cd ~/projects/vero_ws
 colcon build
 source install/setup.bash
 ```
@@ -49,7 +49,7 @@ source install/setup.bash
 ssh vero@vero.local
 
 # Navigate to workspace and build
-cd /home/vero/projects/vero_ws
+cd ~/projects/vero_ws
 colcon build
 source install/setup.bash
 ```
