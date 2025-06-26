@@ -36,10 +36,11 @@ void MotorDriverHAT::set_wheel_speeds(int left_percent, int right_percent) {
     left_percent = std::max(-100, std::min(100, left_percent));
     right_percent = std::max(-100, std::min(100, right_percent));
 
-    // Left motors (Channel B)
-    runMotor(MOTOR_B, left_percent);
+    // HARDWARE DEBUG: Both motors appear to have polarity issues
+    // Left motors (Channel B) - REVERSED POLARITY
+    runMotor(MOTOR_B, -left_percent);
 
-    // Right motors (Channel A) - REVERSED POLARITY FOR TESTING
+    // Right motors (Channel A) - REVERSED POLARITY  
     runMotor(MOTOR_A, -right_percent);
 
     // Stub feedback (no encoders)
