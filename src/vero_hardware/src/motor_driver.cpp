@@ -21,9 +21,18 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
     
     // === Detect motion type ===
     bool is_in_place = (std::abs(left + right) < 1e-3) && (std::abs(left - right) > 1e-3);
-    bool is_pure_forward = std::abs(left - right) < 1e-2;
+    bool is_pure_forward = std::abs(left - right) < 1e-5;  // Much stricter - only truly identical speeds
     bool is_curve = !is_in_place && !is_pure_forward;
     bool is_stopped = std::abs(left) < 1e-3 && std::abs(right) < 1e-3;
+
+    // Debug: Let's see what values we're getting
+    if (std::abs(left) > 1e-3 || std::abs(right) > 1e-3) {
+        std::cout << "MOTION DEBUG: left=" << left << ", right=" << right 
+                  << ", diff=" << std::abs(left - right) << std::endl;
+        std::cout << "  is_pure_forward=" << is_pure_forward 
+                  << ", is_curve=" << is_curve 
+                  << ", is_in_place=" << is_in_place << std::endl;
+    }
 
     int left_percent = 0, right_percent = 0;
     int left_percent_original = 0, right_percent_original = 0;
@@ -67,13 +76,35 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
         max_percentage = static_cast<double>(static_turn_power); // debug only
         min_threshold = 0;
 
-    } else if (is_pure_forward || is_curve) {
-        // Forward motion or curve/arc motion
+    } else if (is_pure_forward) {
+        // Pure straight motion (i and , keys)
         max_wheel_velocity = 1.0717944050000008;  // Optimal speed based on testing
-        max_percentage = is_pure_forward ? 40.0 : 50.0;
+        max_percentage = 40.0;
         min_threshold = 20;
         
-        // Apply scaled output
+        // For pure forward/backward, use the average and apply to both wheels equally
+        double avg_speed = (left + right) / 2.0;
+        double scaled_speed = std::max(-1.0, std::min(1.0, avg_speed / max_wheel_velocity));
+        
+        left_percent = static_cast<int>(scaled_speed * max_percentage);
+        right_percent = static_cast<int>(scaled_speed * max_percentage);
+        
+        left_percent_original = left_percent;
+        right_percent_original = right_percent;
+
+        // Apply minimum power threshold
+        if (std::abs(left_percent) > 0 && std::abs(left_percent) < min_threshold)
+            left_percent = (left_percent > 0) ? min_threshold : -min_threshold;
+        if (std::abs(right_percent) > 0 && std::abs(right_percent) < min_threshold)
+            right_percent = (right_percent > 0) ? min_threshold : -min_threshold;
+            
+    } else if (is_curve) {
+        // Curve/arc motion (u, o, m, . keys) - PRESERVE INDIVIDUAL WHEEL SPEEDS
+        max_wheel_velocity = 1.0717944050000008;  // Optimal speed based on testing
+        max_percentage = 50.0;  // Slightly higher for curves
+        min_threshold = 20;
+        
+        // Apply scaled output - KEEP LEFT AND RIGHT SEPARATE
         double left_scaled = std::max(-1.0, std::min(1.0, left / max_wheel_velocity));
         double right_scaled = std::max(-1.0, std::min(1.0, right / max_wheel_velocity));
 
