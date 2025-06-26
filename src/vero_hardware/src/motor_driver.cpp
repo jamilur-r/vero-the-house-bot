@@ -16,22 +16,17 @@ MotorDriver::MotorDriver(int address)
 }
 
 void MotorDriver::set_wheel_velocities(double left, double right) {
-    // Update command timestamp
     last_command_time_ = std::chrono::steady_clock::now();
-    
-    // === Detect motion type ===
-    bool is_in_place = (std::abs(left + right) < 1e-3) && (std::abs(left - right) > 1e-3);
-    bool is_pure_forward = std::abs(left - right) < 0.05 * std::max(std::abs(left), std::abs(right));
-    bool is_stopped = std::abs(left) < 1e-3 && std::abs(right) < 1e-3;
-    bool is_curve = !is_in_place && !is_pure_forward && !is_stopped;
 
-    // Debug: Let's see what values we're getting - ALWAYS SHOW FOR DEBUGGING
-    std::cout << "MOTION DEBUG: left=" << left << ", right=" << right 
-              << ", diff=" << std::abs(left - right) << std::endl;
-    std::cout << "  is_pure_forward=" << is_pure_forward 
-              << ", is_curve=" << is_curve 
-              << ", is_in_place=" << is_in_place 
-              << ", is_stopped=" << is_stopped << std::endl;
+    // === Classify Motion Type ===
+    bool is_stopped = std::abs(left) < 0.01 && std::abs(right) < 0.01;
+
+    bool same_direction = (left * right > 0); // both positive or both negative
+    bool similar_magnitude = std::abs(left - right) < 0.15;
+
+    bool is_pure_straight = same_direction && similar_magnitude;  // forward or backward
+    bool is_in_place = !same_direction && std::abs(left + right) < 0.1;
+    bool is_curve = !is_stopped && !is_in_place && !is_pure_straight;
 
     int left_percent = 0, right_percent = 0;
     int left_percent_original = 0, right_percent_original = 0;
@@ -40,30 +35,27 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
     double max_percentage = 0.0;
 
     if (is_stopped) {
-        // Stopped - stop the motors immediately
+        // STOP
         left_percent = 0;
         right_percent = 0;
-        left_percent_original = 0;
-        right_percent_original = 0;
         max_wheel_velocity = 0.0;
         max_percentage = 0.0;
         min_threshold = 0;
-        
+
         hat_->stop();
         is_stopped_ = true;
-        
-        // Log stop command
+
         std::cout << "=== MOTOR STOP COMMAND ===" << std::endl;
         std::cout << "Input velocities (rad/s): Left=" << left << ", Right=" << right << std::endl;
         std::cout << "Motion: STOPPED" << std::endl;
         std::cout << "=========================" << std::endl << std::flush;
         return;
-        
+
     } else if (is_in_place) {
-        // In-place spin: optimized for tested values
-        double angular_mag = std::min(std::abs(left), 0.5053951031089063);  // Optimal turn value
-        int static_turn_power = static_cast<int>((angular_mag / 0.5053951031089063) * 30); // Scale to 30% max
-        if (static_turn_power < 15) static_turn_power = 15; // Minimum 15% for reliable turning
+        // IN-PLACE TURN
+        double angular_mag = std::min(std::abs(left), 0.5053951031089063);
+        int static_turn_power = static_cast<int>((angular_mag / 0.5053951031089063) * 30);
+        if (static_turn_power < 15) static_turn_power = 15;
 
         left_percent = (left < 0) ? -static_turn_power : static_turn_power;
         right_percent = (right < 0) ? -static_turn_power : static_turn_power;
@@ -71,39 +63,36 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
         left_percent_original = left_percent;
         right_percent_original = right_percent;
 
-        max_wheel_velocity = 0.5053951031089063; // Use optimal turn value for logging
-        max_percentage = static_cast<double>(static_turn_power); // debug only
+        max_wheel_velocity = 0.5053951031089063;
+        max_percentage = static_cast<double>(static_turn_power);
         min_threshold = 0;
 
-    } else if (is_pure_forward) {
-        // Pure straight motion (i and , keys)
-        max_wheel_velocity = 1.0717944050000008;  // Optimal speed based on testing
+    } else if (is_pure_straight) {
+        // FORWARD or BACKWARD motion
+        max_wheel_velocity = 1.0717944050000008;
         max_percentage = 40.0;
         min_threshold = 20;
-        
-        // For pure forward/backward, use the average and apply to both wheels equally
+
         double avg_speed = (left + right) / 2.0;
         double scaled_speed = std::max(-1.0, std::min(1.0, avg_speed / max_wheel_velocity));
-        
+
         left_percent = static_cast<int>(scaled_speed * max_percentage);
         right_percent = static_cast<int>(scaled_speed * max_percentage);
-        
+
         left_percent_original = left_percent;
         right_percent_original = right_percent;
 
-        // Apply minimum power threshold
         if (std::abs(left_percent) > 0 && std::abs(left_percent) < min_threshold)
             left_percent = (left_percent > 0) ? min_threshold : -min_threshold;
         if (std::abs(right_percent) > 0 && std::abs(right_percent) < min_threshold)
             right_percent = (right_percent > 0) ? min_threshold : -min_threshold;
-            
+
     } else if (is_curve) {
-        // Curve/arc motion (u, o, m, . keys) - PRESERVE INDIVIDUAL WHEEL SPEEDS
-        max_wheel_velocity = 1.0717944050000008;  // Optimal speed based on testing
-        max_percentage = 50.0;  // Slightly higher for curves
+        // CURVE / ARC
+        max_wheel_velocity = 1.0717944050000008;
+        max_percentage = 50.0;
         min_threshold = 20;
-        
-        // Apply scaled output - KEEP LEFT AND RIGHT SEPARATE
+
         double left_scaled = std::max(-1.0, std::min(1.0, left / max_wheel_velocity));
         double right_scaled = std::max(-1.0, std::min(1.0, right / max_wheel_velocity));
 
@@ -113,23 +102,21 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
         left_percent_original = left_percent;
         right_percent_original = right_percent;
 
-        // Apply minimum power threshold
         if (std::abs(left_percent) > 0 && std::abs(left_percent) < min_threshold)
             left_percent = (left_percent > 0) ? min_threshold : -min_threshold;
         if (std::abs(right_percent) > 0 && std::abs(right_percent) < min_threshold)
             right_percent = (right_percent > 0) ? min_threshold : -min_threshold;
-    } else {
-        // We have a movement command
-        is_stopped_ = false;
     }
 
-    // === Logging ===
+    is_stopped_ = false;
+
+    // === LOGGING ===
     std::cout << "=== MOTOR COMMAND RECEIVED ===" << std::endl;
     std::cout << "Input velocities (rad/s): Left=" << left << ", Right=" << right << std::endl;
     std::cout << "Motion: "
               << (is_in_place ? "IN_PLACE_TURN"
-                              : (is_pure_forward ? "STRAIGHT"
-                                                 : (is_curve ? "CURVE" : "OTHER")))
+                              : (is_pure_straight ? "STRAIGHT"
+                                                  : (is_curve ? "CURVE" : "UNKNOWN")))
               << std::endl;
     std::cout << "Scaling: max_velocity=" << max_wheel_velocity
               << ", max_percent=" << max_percentage << "%" << std::endl;
