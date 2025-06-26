@@ -39,8 +39,8 @@ void MotorDriverHAT::set_wheel_speeds(int left_percent, int right_percent) {
     // Left motors (Channel B)
     runMotor(MOTOR_B, left_percent);
 
-    // Right motors (Channel A)
-    runMotor(MOTOR_A, right_percent);
+    // Right motors (Channel A) - REVERSED POLARITY FOR TESTING
+    runMotor(MOTOR_A, -right_percent);
 
     // Stub feedback (no encoders)
     left_velocity_ = left_percent / 100.0;
