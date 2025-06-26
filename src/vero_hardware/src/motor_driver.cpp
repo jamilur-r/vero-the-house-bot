@@ -21,8 +21,8 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
     
     // === Detect motion type ===
     bool is_in_place = (std::abs(left + right) < 1e-3) && (std::abs(left - right) > 1e-3);
-    bool is_pure_forward = std::abs(left - right) < 1e-5;  // Much stricter - only truly identical speeds
-    bool is_curve = !is_in_place && !is_pure_forward;
+    bool is_pure_forward = std::abs(left - right) < 0.05 * std::max(std::abs(left), std::abs(right));
+    bool is_curve = !is_in_place && !is_pure_forward && !is_stopped;
     bool is_stopped = std::abs(left) < 1e-3 && std::abs(right) < 1e-3;
 
     // Debug: Let's see what values we're getting - ALWAYS SHOW FOR DEBUGGING
