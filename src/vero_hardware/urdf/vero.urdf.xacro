@@ -3,10 +3,10 @@
 
   <!-- Parameters -->
   <xacro:property name="wheel_radius" value="0.036"/>
-  <xacro:property name="wheel_separation" value="0.121"/>
-  <xacro:property name="base_length" value="0.185"/>
-  <xacro:property name="base_width" value="0.108"/>
-  <xacro:property name="base_height" value="0.035"/>
+  <xacro:property name="wheel_separation" value="0.0916"/>  <!-- 91.6mm -->
+  <xacro:property name="base_length" value="0.1274"/>       <!-- 127.4mm -->
+  <xacro:property name="base_width" value="0.0866"/>        <!-- 43.3*2 = 86.6mm -->
+  <xacro:property name="base_height" value="0.033"/>        <!-- 33mm -->
 
   <!-- Base Link -->
   <link name="base_link">

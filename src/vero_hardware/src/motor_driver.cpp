@@ -25,14 +25,13 @@ void MotorDriver::set_wheel_velocities(double left, double right) {
     bool is_curve = !is_in_place && !is_pure_forward;
     bool is_stopped = std::abs(left) < 1e-3 && std::abs(right) < 1e-3;
 
-    // Debug: Let's see what values we're getting
-    if (std::abs(left) > 1e-3 || std::abs(right) > 1e-3) {
-        std::cout << "MOTION DEBUG: left=" << left << ", right=" << right 
-                  << ", diff=" << std::abs(left - right) << std::endl;
-        std::cout << "  is_pure_forward=" << is_pure_forward 
-                  << ", is_curve=" << is_curve 
-                  << ", is_in_place=" << is_in_place << std::endl;
-    }
+    // Debug: Let's see what values we're getting - ALWAYS SHOW FOR DEBUGGING
+    std::cout << "MOTION DEBUG: left=" << left << ", right=" << right 
+              << ", diff=" << std::abs(left - right) << std::endl;
+    std::cout << "  is_pure_forward=" << is_pure_forward 
+              << ", is_curve=" << is_curve 
+              << ", is_in_place=" << is_in_place 
+              << ", is_stopped=" << is_stopped << std::endl;
 
     int left_percent = 0, right_percent = 0;
     int left_percent_original = 0, right_percent_original = 0;
