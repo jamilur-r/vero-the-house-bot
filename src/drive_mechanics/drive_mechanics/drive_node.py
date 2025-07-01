@@ -50,26 +50,39 @@ class DriveNode(Node):
         angular_z = max(
             min(msg.angular.z, self.max_angular_vel), -self.max_angular_vel)
 
-        # Differential drive kinematics using wheel_separation parameter
-        left_speed = linear_x - angular_z * (self.wheel_separation / 2.0)
-        right_speed = linear_x + angular_z * (self.wheel_separation / 2.0)
+        # Enhanced differential drive kinematics
+        # Increase angular contribution for better turning
+        angular_contribution = angular_z * \
+            (self.wheel_separation / 2.0) * 2.0  # Double the angular effect
 
-        # Simplified conversion to percentage for motor controller
-        # Scale directly based on max velocity and apply max_speed multiplier
-        left_speed_percent = (
-            left_speed / self.max_linear_vel) * 100.0 * self.max_speed
-        right_speed_percent = (
-            right_speed / self.max_linear_vel) * 100.0 * self.max_speed
+        left_speed = linear_x - angular_contribution
+        right_speed = linear_x + angular_contribution
+
+        # Better scaling - handle pure rotation separately
+        if abs(linear_x) < 0.01:  # Pure rotation
+            # Scale based on angular velocity for better turning response
+            # Negative for proper direction
+            left_speed_percent = -(angular_z / self.max_angular_vel) * 60.0
+            right_speed_percent = (angular_z / self.max_angular_vel) * 60.0
+        else:
+            # Mixed movement - scale based on linear velocity
+            left_speed_percent = (left_speed / self.max_linear_vel) * 80.0
+            right_speed_percent = (right_speed / self.max_linear_vel) * 80.0
+
+        # Apply max_speed multiplier
+        left_speed_percent *= self.max_speed
+        right_speed_percent *= self.max_speed
 
         # Clamp to -100 to 100 range
         left_speed_percent = max(min(left_speed_percent, 100.0), -100.0)
         right_speed_percent = max(min(right_speed_percent, 100.0), -100.0)
 
+        # Try swapping left/right to fix direction issues
         self.motor_controller.set_motor_speed(
-            left_speed_percent, right_speed_percent)
+            right_speed_percent, left_speed_percent)
 
-        self.get_logger().debug(f'Cmd: linear={linear_x:.2f}, angular={angular_z:.2f}, '
-                                f'left_speed={left_speed_percent:.1f}%, right_speed={right_speed_percent:.1f}%')
+        self.get_logger().info(f'Cmd: linear={linear_x:.2f}, angular={angular_z:.2f}, '
+                               f'left_cmd={left_speed_percent:.1f}%, right_cmd={right_speed_percent:.1f}%')
 
 
 def main(args=None):

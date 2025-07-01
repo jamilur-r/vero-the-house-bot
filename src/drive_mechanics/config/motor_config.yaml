@@ -14,7 +14,7 @@ drive_mechanics_node:
     # Safety Parameters
     safety:
       max_linear_velocity: 0.5 # Increased from 0.3 for better response
-      max_angular_velocity: 3.0 # Increased from 2.0 for better turning
+      max_angular_velocity: 5.0 # Increased from 3.0 for much better turning
 
     # Debugging and Development
     debug:
