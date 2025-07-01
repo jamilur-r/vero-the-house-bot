@@ -5,18 +5,18 @@ drive_mechanics_node:
   ros__parameters:
     # Physical Robot Parameters
     robot:
-      wheel_separation: 0.089       # Distance between drive wheel centers in meters (89mm)
+      wheel_separation: 0.089 # Distance between drive wheel centers in meters (89mm)
 
     # Motor Control Parameters
     motor_control:
-      max_speed: 0.6               # Maximum allowed speed (60% - conservative for small robot)
+      max_speed: 0.8 # Increased from 0.6 for more responsive movement
 
     # Safety Parameters
     safety:
-      max_linear_velocity: 0.3     # Maximum linear velocity in m/s (conservative for 75mm wheels)
-      max_angular_velocity: 2.0    # Maximum angular velocity in rad/s (higher for tight turns)
+      max_linear_velocity: 0.5 # Increased from 0.3 for better response
+      max_angular_velocity: 3.0 # Increased from 2.0 for better turning
 
     # Debugging and Development
     debug:
-      enable_debug_output: false   # Enable verbose debug messages
-      test_mode: false             # Enable test mode (safe for development)
+      enable_debug_output: false # Enable verbose debug messages
+      test_mode: false # Enable test mode (safe for development)

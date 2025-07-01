@@ -54,14 +54,12 @@ class DriveNode(Node):
         left_speed = linear_x - angular_z * (self.wheel_separation / 2.0)
         right_speed = linear_x + angular_z * (self.wheel_separation / 2.0)
 
-        # Convert to percentage for motor controller (expects 0-100)
-        # Scale based on max_linear_vel to get percentage
-        max_wheel_speed = self.max_linear_vel + \
-            self.max_angular_vel * (self.wheel_separation / 2.0)
+        # Simplified conversion to percentage for motor controller
+        # Scale directly based on max velocity and apply max_speed multiplier
         left_speed_percent = (
-            left_speed / max_wheel_speed) * 100.0 * self.max_speed
+            left_speed / self.max_linear_vel) * 100.0 * self.max_speed
         right_speed_percent = (
-            right_speed / max_wheel_speed) * 100.0 * self.max_speed
+            right_speed / self.max_linear_vel) * 100.0 * self.max_speed
 
         # Clamp to -100 to 100 range
         left_speed_percent = max(min(left_speed_percent, 100.0), -100.0)
