@@ -4,7 +4,7 @@ import time
 import smbus
 
 
-class __MotorHatInterface:
+class _MotorHatInterface:
 
     # Registers/etc.
     __SUBADR1 = 0x02
@@ -102,16 +102,17 @@ class __MotorHatInterface:
 
 class MotorController:
     def __init__(self, address=0x40, freq=60):
-        self.hat_controller = __MotorHatInterface(address, freq)
+        self.hat_controller = _MotorHatInterface(address, freq)
 
     def set_motor_speed(self, left_speed, right_speed):
         """ 
-            takes in speed as a percentage (0-100) and sets left and right motor speeds accordingly.
+            takes in speed as a percentage (-100 to 100) and sets left and right motor speeds accordingly.
         """
 
-        # Set left motor speed
+        # Set left motor speed and direction
+        left_abs_speed = abs(left_speed)
         self.hat_controller.set_duty_cycle(
-            self.hat_controller.LEFT_MOTOR_PWM, left_speed)
+            self.hat_controller.LEFT_MOTOR_PWM, left_abs_speed)
         if left_speed > 0:
             self.hat_controller.set_level(
                 self.hat_controller.LEFT_MOTOR_DIR1, 1)
@@ -128,9 +129,10 @@ class MotorController:
             self.hat_controller.set_level(
                 self.hat_controller.LEFT_MOTOR_DIR2, 0)
 
-        # Set right motor speed
+        # Set right motor speed and direction
+        right_abs_speed = abs(right_speed)
         self.hat_controller.set_duty_cycle(
-            self.hat_controller.RIGHT_MOTOR_PWM, right_speed)
+            self.hat_controller.RIGHT_MOTOR_PWM, right_abs_speed)
         if right_speed > 0:
             self.hat_controller.set_level(
                 self.hat_controller.RIGHT_MOTOR_DIR1, 1)
