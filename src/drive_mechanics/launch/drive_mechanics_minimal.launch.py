@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -10,18 +11,19 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # Get the launch directory
-    pkg_share = FindPackageShare(package='drive_mechanics').find('drive_mechanics')
-    
+    pkg_share = FindPackageShare(
+        package='drive_mechanics').find('drive_mechanics')
+
     # Path to config file
     config_file_path = os.path.join(pkg_share, 'config', 'motor_config.yaml')
-    
+
     # Launch arguments
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time',
         default_value='false',
         description='Use simulation (Gazebo) clock if true'
     )
-    
+
     # Drive mechanics node (minimal for nav2)
     drive_mechanics_node = Node(
         package='drive_mechanics',
@@ -45,7 +47,7 @@ def generate_launch_description():
     return LaunchDescription([
         # Launch arguments
         use_sim_time_arg,
-        
+
         # Nodes
         drive_mechanics_node,
     ])

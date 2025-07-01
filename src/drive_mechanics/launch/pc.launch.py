@@ -6,6 +6,7 @@ Network: Subscribes to Pi Zero topics, publishes commands
 """
 
 import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction
 from launch.conditions import IfCondition
@@ -16,46 +17,47 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # Get the config file path
-    pkg_share = FindPackageShare(package='drive_mechanics').find('drive_mechanics')
+    pkg_share = FindPackageShare(
+        package='drive_mechanics').find('drive_mechanics')
     config_file_path = os.path.join(pkg_share, 'config', 'motor_config.yaml')
-    
+
     # Launch arguments
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time',
         default_value='false',
         description='Use simulation time if true'
     )
-    
+
     enable_nav2_arg = DeclareLaunchArgument(
         'enable_nav2',
         default_value='false',
         description='Launch nav2 stack'
     )
-    
+
     enable_rviz_arg = DeclareLaunchArgument(
         'enable_rviz',
         default_value='true',
         description='Launch RViz for visualization'
     )
-    
+
     enable_teleop_arg = DeclareLaunchArgument(
         'enable_teleop',
         default_value='true',
         description='Enable teleop control'
     )
-    
+
     robot_name_arg = DeclareLaunchArgument(
         'robot_name',
         default_value='robot1',
         description='Name of the robot'
     )
-    
+
     namespace_arg = DeclareLaunchArgument(
         'namespace',
         default_value='',
         description='Namespace for the robot'
     )
-    
+
     # Robot State Publisher (for visualization and TF tree)
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -70,7 +72,7 @@ def generate_launch_description():
             }
         ]
     )
-    
+
     # Joint State Publisher (for robot visualization)
     joint_state_publisher = Node(
         package='joint_state_publisher',
@@ -82,20 +84,21 @@ def generate_launch_description():
             {'use_sim_time': LaunchConfiguration('use_sim_time')}
         ]
     )
-    
+
     # RViz for visualization
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=['-d', os.path.join(pkg_share, 'rviz', 'drive_mechanics.rviz')],
+        arguments=[
+            '-d', os.path.join(pkg_share, 'rviz', 'drive_mechanics.rviz')],
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')}
         ],
         condition=IfCondition(LaunchConfiguration('enable_rviz'))
     )
-    
+
     # Teleop Twist Keyboard
     teleop_keyboard = Node(
         package='teleop_twist_keyboard',
@@ -111,7 +114,7 @@ def generate_launch_description():
         ],
         condition=IfCondition(LaunchConfiguration('enable_teleop'))
     )
-    
+
     # Alternative: Teleop Twist Joy (for gamepad)
     teleop_joy = Node(
         package='teleop_twist_joy',
@@ -128,7 +131,7 @@ def generate_launch_description():
         # Uncomment condition below to enable joy control instead of keyboard
         # condition=IfCondition(LaunchConfiguration('enable_teleop'))
     )
-    
+
     # Robot Monitor (diagnostics visualization)
     robot_monitor = Node(
         package='rqt_robot_monitor',
@@ -137,7 +140,7 @@ def generate_launch_description():
         output='screen',
         condition=IfCondition(LaunchConfiguration('enable_rviz'))
     )
-    
+
     # Network Bridge Node (if needed for different ROS2 distributions)
     # network_bridge = Node(
     #     package='drive_mechanics',
@@ -148,8 +151,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         # Global parameters
-        SetParameter(name='use_sim_time', value=LaunchConfiguration('use_sim_time')),
-        
+        SetParameter(name='use_sim_time',
+                     value=LaunchConfiguration('use_sim_time')),
+
         # Launch arguments
         use_sim_time_arg,
         enable_nav2_arg,
@@ -157,7 +161,7 @@ def generate_launch_description():
         enable_teleop_arg,
         robot_name_arg,
         namespace_arg,
-        
+
         # Visualization and control nodes (PC)
         robot_state_publisher,
         joint_state_publisher,

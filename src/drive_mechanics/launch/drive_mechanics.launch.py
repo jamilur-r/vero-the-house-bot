@@ -1,47 +1,50 @@
 #!/usr/bin/env python3
 
 import os
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
+from launch.actions import (DeclareLaunchArgument, GroupAction,
+                            SetEnvironmentVariable)
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
-from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
     # Get the launch directory
-    pkg_share = FindPackageShare(package='drive_mechanics').find('drive_mechanics')
-    
+    pkg_share = FindPackageShare(
+        package='drive_mechanics').find('drive_mechanics')
+
     # Path to config file
     config_file_path = os.path.join(pkg_share, 'config', 'motor_config.yaml')
-    
+
     # Launch arguments
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time',
         default_value='false',
         description='Use simulation (Gazebo) clock if true'
     )
-    
+
     enable_diagnostics_arg = DeclareLaunchArgument(
         'enable_diagnostics',
         default_value='true',
         description='Enable diagnostic publishing'
     )
-    
+
     enable_debug_arg = DeclareLaunchArgument(
         'enable_debug',
         default_value='false',
         description='Enable debug output'
     )
-    
+
     log_level_arg = DeclareLaunchArgument(
         'log_level',
         default_value='info',
         description='Logging level (debug, info, warn, error, fatal)'
     )
-    
+
     # Drive mechanics node
     drive_mechanics_node = Node(
         package='drive_mechanics',
@@ -56,14 +59,15 @@ def generate_launch_description():
                 'enable_debug': LaunchConfiguration('enable_debug'),
             }
         ],
-        arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')],
+        arguments=['--ros-args', '--log-level',
+                   LaunchConfiguration('log_level')],
         remappings=[
             ('/cmd_vel', '/cmd_vel'),
             ('/odom', '/odom'),
             ('/diagnostics', '/diagnostics'),
         ]
     )
-    
+
     # Robot state publisher (optional - for TF tree visualization)
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -74,9 +78,10 @@ def generate_launch_description():
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
             {'robot_description': get_robot_description()}
         ],
-        condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_sim_time'), "' == 'false'"]))
+        condition=IfCondition(PythonExpression(
+            ["'", LaunchConfiguration('use_sim_time'), "' == 'false'"]))
     )
-    
+
     # Joint state publisher (for robot model)
     joint_state_publisher = Node(
         package='joint_state_publisher',
@@ -86,9 +91,10 @@ def generate_launch_description():
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')}
         ],
-        condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_sim_time'), "' == 'false'"]))
+        condition=IfCondition(PythonExpression(
+            ["'", LaunchConfiguration('use_sim_time'), "' == 'false'"]))
     )
-    
+
     # Teleop keyboard node (optional - for testing)
     teleop_keyboard = Node(
         package='teleop_twist_keyboard',
@@ -108,13 +114,13 @@ def generate_launch_description():
     return LaunchDescription([
         # Environment variables
         SetEnvironmentVariable('RCUTILS_LOGGING_BUFFERED_STREAM', '1'),
-        
+
         # Launch arguments
         use_sim_time_arg,
         enable_diagnostics_arg,
         enable_debug_arg,
         log_level_arg,
-        
+
         # Nodes
         drive_mechanics_node,
         robot_state_publisher,
