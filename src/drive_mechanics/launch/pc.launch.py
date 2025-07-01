@@ -58,46 +58,46 @@ def generate_launch_description():
         description='Namespace for the robot'
     )
 
-    # Robot State Publisher (for visualization and TF tree)
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        namespace=LaunchConfiguration('namespace'),
-        output='screen',
-        parameters=[
-            {
-                'use_sim_time': LaunchConfiguration('use_sim_time'),
-                'robot_description': get_robot_description()
-            }
-        ]
-    )
+    # Robot State Publisher (for visualization and TF tree) - commented out if not installed
+    # robot_state_publisher = Node(
+    #     package='robot_state_publisher',
+    #     executable='robot_state_publisher',
+    #     name='robot_state_publisher',
+    #     namespace=LaunchConfiguration('namespace'),
+    #     output='screen',
+    #     parameters=[
+    #         {
+    #             'use_sim_time': LaunchConfiguration('use_sim_time'),
+    #             'robot_description': get_robot_description()
+    #         }
+    #     ]
+    # )
 
-    # Joint State Publisher (for robot visualization)
-    joint_state_publisher = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        namespace=LaunchConfiguration('namespace'),
-        output='screen',
-        parameters=[
-            {'use_sim_time': LaunchConfiguration('use_sim_time')}
-        ]
-    )
+    # Joint State Publisher (for robot visualization) - commented out if not installed
+    # joint_state_publisher = Node(
+    #     package='joint_state_publisher',
+    #     executable='joint_state_publisher',
+    #     name='joint_state_publisher',
+    #     namespace=LaunchConfiguration('namespace'),
+    #     output='screen',
+    #     parameters=[
+    #         {'use_sim_time': LaunchConfiguration('use_sim_time')}
+    #     ]
+    # )
 
-    # RViz for visualization
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=[
-            '-d', os.path.join(pkg_share, 'rviz', 'drive_mechanics.rviz')],
-        parameters=[
-            {'use_sim_time': LaunchConfiguration('use_sim_time')}
-        ],
-        condition=IfCondition(LaunchConfiguration('enable_rviz'))
-    )
+    # RViz for visualization - commented out if not installed
+    # rviz_node = Node(
+    #     package='rviz2',
+    #     executable='rviz2',
+    #     name='rviz2',
+    #     output='screen',
+    #     arguments=[
+    #         '-d', os.path.join(pkg_share, 'rviz', 'drive_mechanics.rviz')],
+    #     parameters=[
+    #         {'use_sim_time': LaunchConfiguration('use_sim_time')}
+    #     ],
+    #     condition=IfCondition(LaunchConfiguration('enable_rviz'))
+    # )
 
     # Teleop Twist Keyboard
     teleop_keyboard = Node(
@@ -132,14 +132,14 @@ def generate_launch_description():
         # condition=IfCondition(LaunchConfiguration('enable_teleop'))
     )
 
-    # Robot Monitor (diagnostics visualization)
-    robot_monitor = Node(
-        package='rqt_robot_monitor',
-        executable='rqt_robot_monitor',
-        name='robot_monitor',
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('enable_rviz'))
-    )
+    # Robot Monitor (diagnostics visualization) - commented out if not installed
+    # robot_monitor = Node(
+    #     package='rqt_robot_monitor',
+    #     executable='rqt_robot_monitor',
+    #     name='robot_monitor',
+    #     output='screen',
+    #     condition=IfCondition(LaunchConfiguration('enable_rviz'))
+    # )
 
     # Network Bridge Node (if needed for different ROS2 distributions)
     # network_bridge = Node(
@@ -150,10 +150,6 @@ def generate_launch_description():
     # )
 
     return LaunchDescription([
-        # Global parameters
-        SetParameter(name='use_sim_time',
-                     value=LaunchConfiguration('use_sim_time')),
-
         # Launch arguments
         use_sim_time_arg,
         enable_nav2_arg,
@@ -163,12 +159,12 @@ def generate_launch_description():
         namespace_arg,
 
         # Visualization and control nodes (PC)
-        robot_state_publisher,
-        joint_state_publisher,
-        rviz_node,
+        # robot_state_publisher,  # Commented out - install with: sudo apt install ros-humble-robot-state-publisher
+        # joint_state_publisher,  # Commented out - install with: sudo apt install ros-humble-joint-state-publisher
+        # rviz_node,  # Commented out - install with: sudo apt install ros-humble-rviz2
         teleop_keyboard,
         # teleop_joy,  # Uncomment for gamepad control
-        robot_monitor,
+        # robot_monitor,  # Commented out - install with: sudo apt install ros-humble-rqt-robot-monitor
         # network_bridge,  # Uncomment if needed
     ])
 

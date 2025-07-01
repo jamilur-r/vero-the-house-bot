@@ -1,7 +1,7 @@
 import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
-from rclpy.qos import QoSDurabilityPolicy, QoSProfile
+from rclpy.qos import QoSProfile
 
 from drive_mechanics.motor_controller import MotorController
 
@@ -28,9 +28,8 @@ class DriveNode(Node):
 
         self.motor_controller = MotorController()
 
-        # QoS settings for durability
-        qos_profile = QoSProfile(
-            depth=10, durability=QoSDurabilityPolicy.TRANSIENT_LOCAL)
+        # QoS settings - use default for compatibility with teleop_twist_keyboard
+        qos_profile = QoSProfile(depth=10)
 
         self.cmd_vel_subscriber = self.create_subscription(
             Twist,
