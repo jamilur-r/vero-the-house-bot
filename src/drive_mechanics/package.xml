@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>drive_mechanics</name>
+  <version>1.0.0</version>
+  <description>ROS2 package for controlling differential drive robots using Waveshare Motor Driver Hat with PCA9685. Provides motor control interface and nav2 integration for small robots.</description>
+  <maintainer email="abir2jamilur30@gmail.com">xlab</maintainer>
+  <license>Apache License 2.0</license>
+  <url type="website">https://github.com/your-username/drive_mechanics</url>
+  <url type="bugtracker">https://github.com/your-username/drive_mechanics/issues</url>
+  <url type="repository">https://github.com/your-username/drive_mechanics</url>
+
+  <!-- Core ROS2 dependencies -->
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  
+  <!-- Navigation and transform dependencies -->
+  <depend>nav_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  
+  <!-- Diagnostic and monitoring -->
+  <depend>diagnostic_msgs</depend>
+  <depend>diagnostic_updater</depend>
+  
+  <!-- Launch system dependencies -->
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  
+  <!-- Robot description dependencies -->
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  
+  <!-- Teleop for testing (optional) -->
+  <exec_depend>teleop_twist_keyboard</exec_depend>
+  
+  <!-- Build and test dependencies -->
+  <build_depend>ament_cmake</build_depend>
+  
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

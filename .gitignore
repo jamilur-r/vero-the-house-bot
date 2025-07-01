@@ -27,4 +27,5 @@ local_setup.*
 *.bak
 .DS_Store
 
+env/
 # ROS 2 launch/test results
