@@ -1,0 +1,22 @@
+# Motor Configuration for Drive Mechanics Package
+# ROS2 Parameter format - all parameters must be under ros__parameters
+
+drive_mechanics_node:
+  ros__parameters:
+    # Physical Robot Parameters
+    robot:
+      wheel_separation: 0.089 # Distance between drive wheel centers in meters (89mm)
+
+    # Motor Control Parameters
+    motor_control:
+      max_speed: 0.6 # Maximum allowed speed (60% - conservative for small robot)
+
+    # Safety Parameters
+    safety:
+      max_linear_velocity: 0.3 # Maximum linear velocity in m/s (conservative for 75mm wheels)
+      max_angular_velocity: 2.0 # Maximum angular velocity in rad/s (higher for tight turns)
+
+    # Debugging and Development
+    debug:
+      enable_debug_output: false # Enable verbose debug messages
+      test_mode: false # Enable test mode (safe for development)

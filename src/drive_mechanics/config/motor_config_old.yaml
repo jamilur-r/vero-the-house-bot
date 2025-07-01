@@ -1,0 +1,209 @@
+# Motor Configuration for Drive Mechanics Package
+# Configuration for Waveshare Motor Driver Hat with PCA9685
+
+# Hardware Configuration
+hardware:
+  # I2C settings
+  i2c_bus: 1                    # I2C bus number (usually 1 on Pi)
+  i2c_address: 0x40             # PCA9685 I2C address (default 0x40, some use 0x5f)
+  pwm_frequency: 1000           # PWM frequency in Hz (1000Hz recommended for DC motors)
+  
+  # Motor channel mapping
+  motors:
+    left:
+      pwm_channel: 0            # Speed control channel
+      direction_channels:
+        forward: 1              # Forward direction pin
+        reverse: 2              # Reverse direction pin
+    right:
+      pwm_channel: 3            # Speed control channel  
+      direction_channels:
+        forward: 4              # Forward direction pin
+        reverse: 5              # Reverse direction pin
+
+# Physical Robot Parameters
+robot:
+  # Wheel and chassis dimensions (in meters)
+  wheel_diameter: 0.075         # Wheel diameter in meters (75mm)
+  wheel_separation: 0.089       # Distance between drive wheel centers in meters (89mm)
+  wheel_base: 0.0922           # Distance between front and rear axles in meters (46.1*2 = 92.2mm)
+  
+  # Robot configuration
+  wheel_count: 4               # Total number of wheels
+  drive_type: "differential"   # Differential drive (4-wheel but acts like 2-wheel)
+  
+  # Gear ratio and encoder settings
+  gear_ratio: 30.0             # Motor gear ratio (if applicable)
+  encoder_counts_per_rev: 0    # No encoders currently installed
+  has_encoders: false          # Set to true when encoders are added
+
+# Motor Control Parameters
+motor_control:
+  # Speed limits (0.0 to 1.0)
+  max_speed: 0.6               # Maximum allowed speed (60% - conservative for small robot)
+  min_speed: 0.08              # Minimum speed threshold (8% - adjusted for smaller wheels)
+  
+  # Acceleration limits (per second)
+  max_acceleration: 1.5        # Maximum acceleration in m/s² (conservative for small robot)
+  max_deceleration: 2.5        # Maximum deceleration in m/s²
+  
+  # PWM parameters
+  pwm_deadband: 8              # PWM deadband percentage (higher for small motors)
+  pwm_range:
+    min: 0                     # Minimum PWM value
+    max: 100                   # Maximum PWM value
+  
+  # Direction control
+  direction_mode: "dual_pin"   # "dual_pin" or "single_pin" depending on motor driver
+
+# Safety Parameters
+safety:
+  # Timeout settings
+  cmd_timeout: 0.5             # Stop motors if no cmd_vel received for this many seconds
+  emergency_stop_enabled: true # Enable emergency stop functionality
+  
+  # Velocity limits (in m/s and rad/s) - adjusted for small robot
+  max_linear_velocity: 0.3     # Maximum linear velocity in m/s (conservative for 75mm wheels)
+  max_angular_velocity: 2.0    # Maximum angular velocity in rad/s (higher for tight turns)
+  
+  # Motor protection
+  thermal_protection: true     # Enable thermal protection (if sensors available)
+  current_limit: 1.5          # Maximum current per motor in Amps (lower for small motors)
+
+# ROS Parameters
+ros:
+  # Topic names
+  topics:
+    cmd_vel: "/cmd_vel"        # Input velocity commands
+    odom: "/odom"              # Output odometry (if publishing)
+    diagnostics: "/diagnostics" # Diagnostic messages
+  
+  # Frame IDs
+  frames:
+    base_link: "base_link"     # Robot base frame
+    odom: "odom"               # Odometry frame
+  
+  # Publishing rates (Hz)
+  rates:
+    control_rate: 50           # Motor control update rate
+    odom_rate: 30              # Odometry publishing rate (if enabled)
+    diagnostics_rate: 1        # Diagnostics publishing rate
+
+# Calibration Parameters
+calibration:
+  # Motor calibration factors (compensate for motor differences)
+  left_motor_factor: 1.0       # Multiplier for left motor (1.0 = no correction)
+  right_motor_factor: 0.98     # Multiplier for right motor (adjust if robot pulls to one side)
+  
+  # Velocity calibration
+  linear_scale_factor: 1.0     # Scale factor for linear velocity
+  angular_scale_factor: 1.0    # Scale factor for angular velocity
+  
+  # Dead reckoning parameters
+  wheel_slip_factor: 0.95      # Account for wheel slip (0.0-1.0)
+
+# Debugging and Development
+debug:
+  enable_debug_output: false   # Enable verbose debug messages
+  log_motor_commands: false    # Log all motor commands
+  simulate_hardware: false     # Use mock hardware for testing
+  test_mode: false             # Enable test mode (safe for development)
+
+# Optional Features
+features:
+  enable_odometry: false       # Disable odometry (no encoders available)
+  enable_diagnostics: true     # Publish diagnostic messages
+  enable_tf_publishing: false  # Disable TF publishing (no encoders for accurate odometry)
+  enable_current_monitoring: false  # Monitor motor current (if hardware supports)
+  enable_temperature_monitoring: false  # Monitor motor temperature
+
+# ROS2 Nav2 Integration Parameters
+nav2:
+  # Base controller parameters for nav2 compatibility
+  controller:
+    # Differential drive controller settings
+    wheel_radius: 0.0375       # Half of wheel_diameter (75mm/2 = 37.5mm)
+    wheel_separation: 0.089    # Distance between drive wheels
+    wheel_separation_multiplier: 1.0  # Correction factor for wheel separation
+    
+    # Velocity limits for nav2 planners
+    max_vel_x: 0.25            # Maximum forward velocity (m/s)
+    min_vel_x: -0.15           # Maximum reverse velocity (m/s)
+    max_vel_theta: 1.8         # Maximum angular velocity (rad/s)
+    min_vel_theta: -1.8        # Minimum angular velocity (rad/s)
+    
+    # Acceleration limits for nav2
+    acc_lim_x: 1.2             # Linear acceleration limit (m/s²)
+    acc_lim_theta: 2.0         # Angular acceleration limit (rad/s²)
+    
+    # Goal tolerance for nav2 controllers
+    xy_goal_tolerance: 0.05    # Position tolerance in meters
+    yaw_goal_tolerance: 0.1    # Orientation tolerance in radians
+    
+  # Robot footprint for nav2 costmaps
+  footprint:
+    # Robot dimensions (approximate rectangular footprint)
+    # Based on wheelbase and some margin
+    length: 0.12               # Robot length in meters (wheelbase + margin)
+    width: 0.10                # Robot width in meters (wheel_separation + margin)
+    
+    # Alternative: polygon footprint (uncomment if needed)
+    # polygon: [[-0.06, -0.05], [-0.06, 0.05], [0.06, 0.05], [0.06, -0.05]]
+    
+  # Transform frames for nav2
+  frames:
+    base_footprint: "base_footprint"  # Base of robot on ground
+    base_link: "base_link"            # Center of robot
+    odom: "odom"                      # Odometry frame
+    map: "map"                        # Global map frame
+    
+  # DWB (Dynamic Window Approach) planner parameters
+  dwb_controller:
+    # Trajectory generation
+    sim_time: 2.0              # Trajectory simulation time (seconds)
+    discretize_by_time: false  # Discretize by distance, not time
+    time_granularity: 0.5      # Time step for trajectory generation
+    
+    # Velocity sampling
+    vx_samples: 12             # Number of linear velocity samples
+    vy_samples: 1              # Number of lateral velocity samples (0 for diff drive)
+    vtheta_samples: 20         # Number of angular velocity samples
+    
+    # Trajectory scoring weights
+    path_distance_bias: 32.0   # Weight for following the global path
+    goal_distance_bias: 20.0   # Weight for reaching the goal
+    occdist_scale: 0.02        # Weight for avoiding obstacles
+    
+  # Recovery behaviors
+  recovery:
+    # Recovery behavior parameters
+    conservative_reset_dist: 3.0     # Distance to reset to conservative mode
+    aggressive_reset_dist: 1.0       # Distance to reset to aggressive mode
+    
+    # Backup recovery
+    backup_dist: -0.15              # Distance to backup during recovery
+    backup_speed: -0.05             # Speed for backup recovery
+    
+    # Spin recovery
+    spin_speed: 0.5                 # Angular speed for spin recovery
+    
+  # Costmap parameters optimized for small robot
+  costmap:
+    # Global costmap
+    global_costmap:
+      update_frequency: 1.0          # Hz - how often to update
+      publish_frequency: 0.5         # Hz - how often to publish
+      resolution: 0.05               # meters per pixel
+      
+    # Local costmap  
+    local_costmap:
+      update_frequency: 5.0          # Hz - higher for reactive navigation
+      publish_frequency: 2.0         # Hz - how often to publish
+      resolution: 0.025              # meters per pixel - finer for local planning
+      width: 3.0                     # meters - costmap width
+      height: 3.0                    # meters - costmap height
+      
+    # Inflation parameters
+    inflation:
+      inflation_radius: 0.15         # meters - obstacle inflation radius
+      cost_scaling_factor: 10.0      # scaling factor for inflated costs
