@@ -3,7 +3,7 @@ from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 
-from drive_mechanics.drive_mechanics.motor_controller import MotorController
+from drive_mechanics.motor_controller import MotorController
 
 
 class DriveNode(Node):
