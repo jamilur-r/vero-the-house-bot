@@ -10,6 +10,13 @@ drive_mechanics_node:
     # Motor Control Parameters
     motor_control:
       max_speed: 0.8 # Increased from 0.6 for more responsive movement
+      
+      # Angular motion scaling for better in-place turns
+      angular_scaling:
+        enable_scaling: true           # Enable angular velocity scaling
+        in_place_scale_factor: 4.0     # Scaling for pure rotation (linear ~= 0)
+        mixed_motion_scale: 2.0        # Maximum scaling for mixed motion
+        linear_threshold: 0.01         # Threshold for "in-place" detection (m/s)
 
     # Safety Parameters
     safety:

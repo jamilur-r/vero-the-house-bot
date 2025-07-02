@@ -43,8 +43,7 @@ setup(
     description='ROS2 package for controlling differential drive robots using Waveshare Motor Driver Hat with PCA9685',
     license='Apache License 2.0',
     tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
+    entry_points={'console_scripts': [
             # Pi Zero nodes (lightweight, hardware interface)
             'drive_node = drive_mechanics.drive_node:main',
             'motor_test = drive_mechanics.motor_test:main',
@@ -52,6 +51,9 @@ setup(
             # PC nodes (computational, simulation, teleop)
             'teleop_node = drive_mechanics.teleop_node:main',
             'robot_simulator = drive_mechanics.robot_simulator:main',
-        ],
+
+            # Testing and tuning utilities
+            'angular_test = drive_mechanics.angular_test:main',
+    ],
     },
 )
